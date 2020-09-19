@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Table with Search and Sort using AngularJS and PHP</title>
+
+    </head>
+    <body ng-app='myapp'>
+
+        <div ng-controller="fetchCtrl">
+            
+            <!-- Search Element -->
+            <input type='text' ng-keyup='fetchEmployees()' ng-model='searchText' placeholder='Enter search text'><br><br>
+
+            <!-- Table -->
+            <table border='1'>
+               <tr >
+                    <th ng-click='sortColumn("emp_name")' >Name</th>
+                    <th ng-click='sortColumn("salary")' >Salary</th>
+                    <th ng-click='sortColumn("gender")' >Gender</th>
+                    <th ng-click='sortColumn("city")' >City</th>
+                    <th ng-click='sortColumn("email")' >Email</th>
+               </tr>
+               <tr ng-repeat='employee in employees|orderBy:column:reverse'>
+                    <td width='20%' align='center'>{{employee.emp_name}}</td>
+                    <td width='35%' align='center'>{{employee.salary}}</td>
+                    <td width='20%' align='center'>{{employee.gender}}</td>
+                    <td width='25%' align='center'>{{employee.city}}</td>
+                    <td width='25%' align='center'>{{employee.email}}</td>
+               </tr>
+            </table>
+ 
+        </div>
+        
+        <!-- Script -->
+        <script src="angular.min.js"></script>
+        <script>
+        var fetch = angular.module('myapp', []);
+
+        fetch.controller('fetchCtrl', ['$scope', '$http', function ($scope, $http) {
+            
+            // column to sort
+            $scope.column = 'emp_name';
+             
+            // sort ordering (Ascending or Descending). Set true for descending
+            $scope.reverse = false; 
+
+            // called on header click
+            $scope.sortColumn = function(col){
+                $scope.column = col;
+                if($scope.reverse){
+                    $scope.reverse = false;
+                   
+                }else{
+                    $scope.reverse = true; 
+                }
+                $scope.fetchEmployees();
+            };
+
+            // Fetch data
+            $scope.fetchEmployees = function(){
+                
+                var searchText = $scope.searchText;
+                if(searchText == undefined){
+                    searchText = '';
+                }
+
+                $http({
+                method: 'post',
+                url: 'getData.php',
+                data: {searchText:searchText,sortColumn:$scope.column,sortOrder:$scope.reverse,request: 2}
+                }).then(function successCallback(response) {
+                    $scope.employees = response.data;
+                });
+            }
+
+            $scope.fetchEmployees();
+        }]);
+
+        </script>
+        
+    </body>
+
+</html>
+
+
+
+        
